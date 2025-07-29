@@ -63,6 +63,7 @@ jobs:
         run: |
           mkdir -p publish
           cp DS_Map/bin/${{env.BUILD_CONFIGURATION}}/* publish/
+          ls -a
 
       - name: Create Velopack Release
         if: ${{ needs.get_latest_tag.outputs.latest_tag != format('v{0}', steps.get_version.outputs.version) }}
