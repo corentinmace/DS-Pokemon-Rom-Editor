@@ -603,9 +603,6 @@
     <EmbeddedResource Include="SettingsWindow.resx">
       <DependentUpon>SettingsWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include=".env">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -868,9 +865,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DotNetEnv">
-      <Version>3.1.1</Version>
-    </PackageReference>
     <PackageReference Include="jacobslusser.ScintillaNET">
       <Version>3.6.3</Version>
     </PackageReference>

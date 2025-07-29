@@ -44,9 +44,6 @@ namespace DSPRE {
 
 
     public partial class MainProgram : Form {
-
-        private static string GITHUB_TOKEN = Environment.GetEnvironmentVariable("GH_SECRET");
-
         public MainProgram() {
 
 #if DEBUG
@@ -112,7 +109,7 @@ namespace DSPRE {
         private static void CheckForUpdates(bool silent = true)
         {
             AppLogger.Info("Checking for updates...");
-            var mgr = new UpdateManager(new GithubSource("https://github.com/corentinmace/DS-Pokemon-Rom-Editor", GITHUB_TOKEN, false));
+            var mgr = new UpdateManager(new GithubSource("https://github.com/corentinmace/DS-Pokemon-Rom-Editor", "", prerelease: false));
 
             // check for new version
             var newVersion = mgr.CheckForUpdates();

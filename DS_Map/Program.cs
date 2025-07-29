@@ -15,8 +15,6 @@ namespace DSPRE
         [STAThread]
         static void Main()
         {
-            DotNetEnv.Env.Load();
-
             VelopackApp.Build().Run();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
