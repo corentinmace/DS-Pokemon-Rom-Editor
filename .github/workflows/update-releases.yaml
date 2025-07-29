@@ -59,9 +59,10 @@ jobs:
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
 
-      - name: Publish Application
-        run: dotnet publish DS_Map/DSPRE.csproj -c Release -o publish -r win-x64 --self-contained true
-        if: ${{ needs.get_latest_tag.outputs.latest_tag != format('v{0}', steps.get_version.outputs.version) }}
+      - name: Copy output manually
+        run: |
+          mkdir -p publish
+          cp DS_Map/DSPRE/bin/${{env.BUILD_CONFIGURATION}}/* publish/
 
       - name: Create Velopack Release
         if: ${{ needs.get_latest_tag.outputs.latest_tag != format('v{0}', steps.get_version.outputs.version) }}
