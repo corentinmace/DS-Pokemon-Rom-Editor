@@ -50,7 +50,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Publish Application
-        run: dotnet publish DSPRE/DS_Map.csproj -c Release -o publish -r win-x64 --self-contained true
+        run: dotnet publish DS_Map/DSPRE.csproj -c Release -o publish -r win-x64 --self-contained true
         if: ${{ needs.get_latest_tag.outputs.latest_tag != format('v{0}', steps.get_version.outputs.version) }}
 
       - name: Create Velopack Release
