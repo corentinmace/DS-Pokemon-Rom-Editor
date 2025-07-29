@@ -16,7 +16,6 @@ namespace DSPRE
         static void Main()
         {
             DotNetEnv.Env.Load();
-            string GITHUB_TOKEN = Environment.GetEnvironmentVariable("GH_SECRET");
 
             VelopackApp.Build().Run();
             Application.EnableVisualStyles();
