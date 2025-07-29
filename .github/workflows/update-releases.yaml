@@ -62,7 +62,7 @@ jobs:
       - name: Copy output manually
         run: |
           mkdir -p publish
-          cp DS_Map/DSPRE/bin/${{env.BUILD_CONFIGURATION}}/* publish/
+          cp DS_Map/bin/${{env.BUILD_CONFIGURATION}}/* publish/
 
       - name: Create Velopack Release
         if: ${{ needs.get_latest_tag.outputs.latest_tag != format('v{0}', steps.get_version.outputs.version) }}
