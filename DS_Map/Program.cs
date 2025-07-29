@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Velopack;
 
 namespace DSPRE
 {
@@ -14,9 +15,15 @@ namespace DSPRE
         [STAThread]
         static void Main()
         {
+            DotNetEnv.Env.Load();
+            string GITHUB_TOKEN = Environment.GetEnvironmentVariable("GH_SECRET");
+
+            VelopackApp.Build().Run();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             MainProgram mainProgram = new MainProgram();
+
+
             CrashReporter.Initialize(mainProgram);
             Application.Run(mainProgram);
         }

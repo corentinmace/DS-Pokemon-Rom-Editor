@@ -1,61 +1,78 @@
 ﻿using DSPRE.Editors;
+using DSPRE.Editors;
+using DSPRE.Editors.BtxEditor;
+using DSPRE.Resources;
 using DSPRE.Resources;
 using DSPRE.ROMFiles;
+using DSPRE.ROMFiles;
+using Ekona.Images;
 using Ekona.Images;
 using Images;
+using Images;
+using LibNDSFormats.NSBMD;
 using LibNDSFormats.NSBMD;
 using LibNDSFormats.NSBTX;
+using LibNDSFormats.NSBTX;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using NarcAPI;
+using NarcAPI;
 using NSMBe4.NSBMD;
+using NSMBe4.NSBMD;
+using ScintillaNET;
+using ScintillaNET.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
-using NarcAPI;
 using Tao.OpenGl;
-using LibNDSFormats.NSBMD;
-using LibNDSFormats.NSBTX;
-using DSPRE.Resources;
-using DSPRE.ROMFiles;
-using static DSPRE.RomInfo;
-using Images;
-using Ekona.Images;
-using Microsoft.WindowsAPICodePack.Dialogs;
-using ScintillaNET;
-using ScintillaNET.Utils;
-using System.Globalization;
-using static DSPRE.ROMFiles.Event;
-using NSMBe4.NSBMD;
-using System.Reflection;
-using System.ComponentModel;
-using DSPRE.Editors;
-using DSPRE.Editors.BtxEditor;
+using Velopack;
+using Velopack.Sources;
 using static DSPRE.Helpers;
+using static DSPRE.ROMFiles.Event;
+using static DSPRE.RomInfo;
 namespace DSPRE {
 
 
     public partial class MainProgram : Form {
 
-        public MainProgram() {
-            InitializeComponent();
+        private static string GITHUB_TOKEN = Environment.GetEnvironmentVariable("GH_SECRET");
 
-            EditorPanels.Initialize(this);
-            Helpers.Initialize(this);
+        public MainProgram() {
+
 #if DEBUG
             AppLogger.Initialize(this, minLevel: LogLevel.Debug);
 #else
             AppLogger.Initialize(this, minLevel: LogLevel.Info);
 #endif
-
-
             AppLogger.Info("=== Application started. === ");
+
+            try
+            {
+                CheckForUpdates();
+            }
+            catch
+            {
+                AppLogger.Error("Failed to check for updates.");
+                MessageBox.Show("Échec de la vérification des mises à jour.", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            InitializeComponent();
+
+            EditorPanels.Initialize(this);
+            Helpers.Initialize(this);
+
+
+
+
             SetMenuLayout(Properties.Settings.Default.menuLayout); //Read user settings for menu layout
             Text = "DS Pokémon Rom Editor Reloaded " + GetDSPREVersion() + " (Nømura, AdAstra/LD3005, Mixone)";
 
@@ -90,6 +107,31 @@ namespace DSPRE {
                 AppLogger.Debug("No stored ROM folder found on startup.");
             }
 
+        }
+
+        private static void CheckForUpdates(bool silent = true)
+        {
+            AppLogger.Info("Checking for updates...");
+            var mgr = new UpdateManager(new GithubSource("https://github.com/corentinmace/DS-Pokemon-Rom-Editor", GITHUB_TOKEN, false));
+
+            // check for new version
+            var newVersion = mgr.CheckForUpdates();
+            if (newVersion == null)
+            {
+                AppLogger.Info("No updates available.");
+                if (!silent)
+                    MessageBox.Show("Aucune mise à jour disponible.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return; // no update available
+
+            }
+
+            AppLogger.Info($"New version available: {newVersion} (Current: {mgr.CurrentVersion})");
+            // download new version
+            mgr.DownloadUpdates(newVersion);
+
+            // install new version and restart app*
+            AppLogger.Info($"Installing update {newVersion} and restarting app...");
+            mgr.ApplyUpdatesAndRestart(newVersion);
         }
 
         #region Program Window

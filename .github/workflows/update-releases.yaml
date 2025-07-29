@@ -1,0 +1,62 @@
+permissions:
+  contents: write
+
+name: Deploy to GitHub Releases
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  get_latest_tag:
+    name: Get Latest Tag
+    runs-on: ubuntu-latest
+    outputs:
+      latest_tag: ${{ steps.get_latest_tag.outputs.tag }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Get Latest Tag
+        id: get_latest_tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+
+  deploy_to_github_releases:
+    name: Deploy to GitHub Releases
+    needs: get_latest_tag
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Get Version from Project File
+        id: get_version
+        shell: bash
+        run: |
+            version=$(grep -oE '\[assembly: AssemblyVersion\("[0-9\.]+"\)\]' DS_Map/Properties/AssemblyInfo.cs | sed -E 's/.*AssemblyVersion\("([0-9\.]+)"\).*/\1/')
+            echo "version=$version" >> $GITHUB_OUTPUT
+
+
+      - name: Debug Output
+        run: |
+          echo "Latest tag from Linux job: ${{ needs.get_latest_tag.outputs.latest_tag }}"
+          echo "Project version: ${{ steps.get_version.outputs.version }}"
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        if: ${{ needs.get_latest_tag.outputs.latest_tag != format('v{0}', steps.get_version.outputs.version) }}
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish Application
+        run: dotnet publish DSPRE/DS_Map.csproj -c Release -o publish -r win-x64 --self-contained true
+        if: ${{ needs.get_latest_tag.outputs.latest_tag != format('v{0}', steps.get_version.outputs.version) }}
+
+      - name: Create Velopack Release
+        if: ${{ needs.get_latest_tag.outputs.latest_tag != format('v{0}', steps.get_version.outputs.version) }}
+        run: |
+          dotnet tool install -g vpk
+          vpk download github --repoUrl https://github.com/${{ github.repository }} --token ${{ secrets.GH_TOKEN }}
+          vpk pack -u DSPRE -v ${{ steps.get_version.outputs.version }} -p publish --mainExe DSPRE.exe --channel win
+          vpk upload github --repoUrl https://github.com/${{ github.repository }} --publish --releaseName "DSPRE ${{ steps.get_version.outputs.version }}" --tag v${{ steps.get_version.outputs.version }} --token ${{ secrets.GH_TOKEN }}
