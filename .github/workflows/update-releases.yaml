@@ -24,7 +24,7 @@ jobs:
 
       - name: Get Latest Tag
         id: get_latest_tag
-        uses: corentinmace/action-get-latest-tag@1.0.0
+        uses: corentinmace/action-get-latest-tag@1.0.1
 
   deploy_to_github_releases:
     name: Deploy to GitHub Releases
